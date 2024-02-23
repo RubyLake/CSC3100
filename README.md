@@ -1,5 +1,5 @@
 # CSC3100
-Welcome to the group repository for CSC 3100! Web Programming 
+Welcome to the group repository for CSC 3100: Web Programming!
 --------------------------------------------------------------------
            .".".".
          (`       `)               _.-=-.
