@@ -37,7 +37,7 @@ This project serves as our group assignment for CSC 3100: Web Programming.
 Our objective is to develop a web application designed to interface 
 with an existing Internet of Things (IoT) device known as the 
 "Smart Chicken Coop," which is a product of the SwollenHippo company.
-
+---------------------------------------------------------------------
 "Part 1"
 
 We are creating three experiences that the user will encounter. 
