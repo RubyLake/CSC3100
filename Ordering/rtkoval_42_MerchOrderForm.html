@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruby's Merchandise Ordering Form</title>
+    <!-- Link to utilize BootStrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body class="bg-dark">
+    <div class="d-flex col-12 justify-content-center align-items-center vh-108" >
+        <div class="card col-12 col-md-5 mt-5">   
+            <div class ="card-header">
+                <h3> Customer Information </h3>
+            </div>
+                <form>
+                    <div class ="card-body">
+                        <div class = "form-group">
+                            <label for="txtFirstName" class="form-label" aria-label="First Name">First Name</label>
+                            <input id="txtFirstName" class ="form-control">
+                        </div>
+
+                        <div class = "form-group">
+                            <label for="txtLastName" class="form-label" aria-label="Last Name">Last Name</label>
+                            <input id="txtLastName" class ="form-control">
+                        </div>
+
+                        <div class = "form-group">
+                            <label for="txtEmail" class="form-label" type="Email" aria-label="Email">Email</label>
+                            <input id="txtEmail" class ="form-control">
+                        </div>
+
+                        <div class = "form-group">
+                            <label for="txtShippingAddress" aria-label="Shipping Address" class="form-label">Shipping Address</label>
+                            <input id="txtShippingAddress" class ="form-control">
+                        </div>
+
+                        <div class = "form-group">
+                            <label for="txtBillingAddress" aria-label="Address" class="form-label">Billing Address</label>
+                            <input id="txtBillingAddress" class ="form-control">
+                        </div>
+
+                        <div class = "form-group">
+                            <label for="txtPhoneNumber" aria-label="Phone Number" class="form-label">Phone Number</label>
+                            <input id="txtPhoneNumber" class ="form-control">
+                        </div>
+
+                        <!-- Selects for Tops, Bottoms and shoes -->
+                        <label class ="Form-label" aria-label="Select a clothing Top:"> Select a clothing Top </label>
+                        <select class = "form-control" id = "cboTops">
+                            <option></option>
+                        </select>
+
+                        <label class ="Form-label" aria-label="Select a clothing Bottom:"> Select a clothing Bottom: </label>
+                        <select class = "form-control" id = "cboBottoms">
+                            <option></option>
+                        </select>
+
+                        <label class ="Form-label" aria-label="Select some s:"> Select some Shoes </label>
+                        <select class = "form-control" id = "cboShoes">
+                            <option></option>
+                        </select>
+
+                        <button type ="button" id ='btnSubmit' class ="btn btn-primary mt-2">Submit Order</button>
+
+                        <div id="divDetails"></div>
+                        
+
+
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+<script>
+    var arrTops; // Holds clothing tops from API
+    var arrBottoms; // Holds clothing bottoms from API
+    var arrShoes;  // Holds Shoes from API
+    var intSearched = 0; // Counter for search operations to dynamically create unique div IDs and display order number
+
+    // get Clothing Tops from the API and populate dropdown
+    $.getJSON('https://www.swollenhippo.com/getTopsByAPIKey.php?APIKey=Mickey2024!', function(result){
+            arrTops =result;
+            arrTops.forEach(function(tops){
+                let strHTML = '<option value="' + tops.StyleID + '">' + tops.Description + '</option>'; 
+                $('#cboTops').append(strHTML);
+            })
+        
+        })
+    
+    // Fetch Pants/Bottoms from the API and populate dropdown
+    $.getJSON('https://www.swollenhippo.com/getBottomsByAPIKey.php?APIKey=Mickey2024!', function(result){
+            arrBottoms =result;
+            arrBottoms.forEach(function(bottoms){
+                let strHTML = '<option value="' + bottoms.StyleID + '">' + bottoms.Description + '</option>'; 
+                $('#cboBottoms').append(strHTML);
+            })
+        
+        })
+    // Fetch Shoes from the API and populate dropdown
+    $.getJSON('https://www.swollenhippo.com/getShoesByAPIKey.php?APIKey=Mickey2024!', function(result){
+        arrShoes =result;
+        arrShoes.forEach(function(shoes){
+            let strHTML = '<option value="' + shoes.StyleID + '">' + shoes.Description + '</option>'; 
+            $('#cboShoes').append(strHTML);
+        })
+    
+    })
+    
+    // Event listener for the reset button
+    $(document).on('click','#btnReset',function(){
+            // Action to reset the search view
+            $(this).parent().parent().remove()
+        })
+
+    $('#btnSubmit').on('click',function(){
+        
+        let strFirstName = $('#txtFirstName').val();
+        let strLastName = $('#txtLastName').val();
+        let strEmail = $('#txtEmail').val();
+        let strShippingAddress = $('#txtShippingAddress').val();
+        let strBillingAddresss = $('#txtBillingAddress').val();
+        let strPhoneNumber = $('#txtPhoneNumber').val();
+        let tempClothingTop = $('#cboTops option:selected').text();
+        let tempClothingBottom =$('#cboBottoms option:selected').text();
+        let tempClothingShoes =$('#cboShoes option:selected').text(); // Option selected.text utilized to extract the item's description , FOLLOWING LINE stores all order information to the console
+        console.log('--- New Order!!! ---' + '\n' +'First Name: '+ strFirstName + '\n' + 'Last Name: ' +strLastName + '\n' + 'Email: ' + strEmail + '\n' + 'Shipping Address: ' + strShippingAddress + '\n' + 'Billing Address: ' + strBillingAddresss + '\n' + 'Phone Number: ' + strPhoneNumber + '\n' + '--- Items Ordered: --- ' + '\n' + 'Clothing Top: ' + tempClothingTop + '\n' + 'Clothing Bottom: ' + tempClothingBottom + '\n' + 'Shoes: ' + tempClothingShoes)
+            
+        // strHTML appended with everything it needs, then inserted into divDetails
+        let strHTML = '';
+        strHTML += '<div id="div' + intSearched + '" class="card mt-5"><div class="card-header"><h3>' + "Order Number: " +(intSearched+1)+'</h3></div>';
+        strHTML +='<div class="card-body">';
+        strHTML +='<h2 class="text-center col-12">' + "Customer Information: " + '</h2>';
+        strHTML +='<p>' + 'First Name: ' + strFirstName + '</p>';
+        strHTML +='<p>' + 'Last Name: ' + strLastName + '</p>';
+        strHTML +='<p>' + 'Email Name: ' + strEmail + '</p>';
+        strHTML +='<p>' + 'Shipping Address: ' + strShippingAddress + '</p>';
+        strHTML +='<p>' + 'Billing Address: ' + strBillingAddresss + '</p>';
+        strHTML +='<p>' + 'Phone Number: ' + strPhoneNumber + '</p>';
+        strHTML +='<h2 class="text-center col-12">' + "Order Details: " + '</h2>';
+        strHTML +='<p>' + 'Clothing Top: ' + tempClothingTop + '</p>';
+        strHTML +='<p>' + 'Clothing Bottom: ' + tempClothingBottom + '</p>';
+        strHTML +='<p>' + 'Clothing Shoes: ' + tempClothingShoes + '</p>';
+        strHTML+= '<button id ="btnReset" type="button" class="col-12 btn btn-danger">Reset</button></div></div>';
+
+
+        //Logic to append into divDetails 
+        $('#divDetails').append(strHTML);
+        $('#divMain').removeClass('align-items-center').addClass('mt-5');
+        intSearched +=1;
+             if(intSearched > 1){
+                 $('#divMain').removeClass('vh-100')
+                 }
+        })
+    
+</script>
+
+
+
+</body>
+</html>

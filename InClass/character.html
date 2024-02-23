@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags for character set, viewport settings for responsive design -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Title of the webpage -->
+    <title>Characters</title>
+    <!-- Bootstrap CSS for styling. Using version 5.3.2 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+<body class="bg-dark">
+    <!-- Main container with dark background, centered content -->
+    <div id="divMain" class="col-12 vh-100 d-flex justify-content-center align-items-center text-black">
+        <div class="card col-12 col-lg-9">
+            <!-- Card header with the title -->
+            <div class="card-header">
+                <h3 class="text-center">Character Database Search</h3>
+            </div>
+            <!-- Card body containing a form with a dropdown and a button -->
+            <div class="card-body">
+                <h2>Please select a character to review</h2>
+                <div id="divTest">
+                    <h2>This is a test</h2>
+                    <p id="prTest">This is a also a test</p>
+                    <h2>This is a final test</h2>
+
+                </div>
+                <form>
+                    <!-- Label and select dropdown for characters -->
+                    <label class="form-label">Characters</label>
+                    <select class="form-control" id="cboCharacters">
+                        <option></option>
+                    </select>
+                    <hr />
+                    <!-- Search button -->
+                    <button class="btn btn-primary col-12" type="button" id="btnSearch">Find Asset</button>
+                </form>
+                <!-- Container for showing details of the selected character -->
+                <div id="divDetails"></div>
+            </div>
+        </div>
+    </div>
+    <!-- jQuery for AJAX calls and DOM manipulation -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <!-- Bootstrap Bundle JS for Bootstrap components functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <!-- SweetAlert2 for nice alerts, not used directly in the provided code -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        var arrCharacters; // Will hold the characters fetched from the API
+        var intSearched = 0; // Counter for search operations to dynamically create unique div IDs
+
+        // Fetch characters from the API and populate the select dropdown
+        $.getJSON('https://www.swollenhippo.com/getCharactersByAPIKey.php?APIKey=Mickey2022!',function(result){
+                arrCharacters = result; // Store the result in arrCharacters
+                // Populate the dropdown with character names
+                arrCharacters.forEach(function(character){
+                    let strHTML = '<option value="' + character.CodeName + '">' + character.FirstName + ' ' + character.LastName + '</option>';
+                    $('#cboCharacters').append(strHTML);
+                })
+        })
+
+        // Event listener for the reset button (not present in initial HTML)
+        $(document).on('click','#btnReset',function(){
+            // Action to reset the search view
+            $(this).parent().parent().remove()
+        })
+
+        // Event listener for the search button
+        $('#btnSearch').on('click',function(){
+            
+            let strCodename = $('#cboCharacters').val();
+            console.log(strCodename) // Get the selected character's codename
+            // Fetch and display details for the selected character
+            $.getJSON('https://swollenhippo.com/getProfileDetailsByAPIKey.php?APIKey=Mickey2022!&Codename=' + strCodename,function(result){
+                // Create HTML to display the character details
+                let strHTML = '<div id="div' + intSearched + '" class="card"><div class="card-header"><h3>' + result.CodeName +'</h3></div><div class="card-body"><div class="col-12 d-flex justify-content-center"><img class="rounded-circle" src="' + result.Image + '"></div><h2 class="text-center col-12">' + result.FirstName + '</h2><h3 class="text-center col-12">' + result.LastName + '</h3><button id="btnReset" data-searched="' + intSearched + '" type="button" class="col-12 btn btn-danger">Reset</button></div></div>'
+                $('#divDetails').append(strHTML);
+                // Adjust the main div for visual layout after a search
+                $('#divMain').removeClass('align-items-center').addClass('mt-5');
+                intSearched +=1;
+                    if(intSearched > 1){
+                        $('#divMain').removeClass('vh-100')
+                    }
+            })
+        })
+    </script>
+</body>
+</html>
