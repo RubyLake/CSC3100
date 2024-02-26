@@ -28,7 +28,7 @@ The following are collaborators on this project:
 - Kelsey Duncan
 - Dawson Wright
 - Alex Lujan
-- Haley _____
+- Haley Burnell
 - Kevin Irawan
 --------------------------------------------------------------------
 Purpose:
