@@ -12,17 +12,20 @@
     <!--Create a centered container for cards // maybe change?-->
     <div class="d-flex col-12 justify-content-center align-items-center vh-108">
         <!--Login Page // Default-->
-        <div class="card col-12 col-md-5 mt-5" id = "loginCard">   
+        <div class="card col-12 col-md-5 mt-5" id = "divLogin">   
             <div class ="card-header">
                 <h3>User Login</h3>
             </div>
             <form>
                 <div class ="card-body">
                     <div class = "form-group">
-                        <!--Email input-->
+                        <label for="txtLoginEmail" class="form-label">Email</label>
+                        <input id="txtLoginEmail" class="form-control" type="email" aria-label="Email">
                     </div>
                     <div class = "form-group">
                         <!--Password input-->
+                        <label for="txtLoginPassword" class="form-label">Password</label>
+                        <input id="txtLoginPassword" class="form-control" type="password" aria-label="Password">
                     </div>
                     <!-- Div used for positioning of button element-->
                     <div class="col-12 d-flex justify-content-center">
@@ -33,6 +36,50 @@
                     </div>
             </form>
         </div>
+        
+        <div class="card col-12 col-md-5 col-lg-4" id="divRegister" style="display:none;">
+            <div class="card-header">
+                <h3>Registration</h3>
+            </div>
+            <div class="card-body">
+                <form>
+                    <div class="form-group">
+                        <label for="txtFirstName" class="form-label" >First Name</label>
+                        <input id="txtFirstName" class="form-control" aria-label="First Name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="txtLastName" class="form-label">Last Name</label>
+                        <input id="txtLastName" class="form-control" aria-label="Last Name">
+                    </div>
+                    <div class="form-group mt-4">
+                        <label for="txtEmail" class="form-label">Email</label>
+                        <input id="txtEmail" class="form-control" type="email" aria-label="Email">
+                    </div>
+                    <div class="form-group">
+                        <label for="txtPassword" class="form-label">Password</label>
+                        <input id="txtPassword" class="form-control" type="password" aria-label="Password">
+                    </div>
+                    <div class="form-group mt-4">
+                        <label for="txtOrgID" class="form-label">Organizational ID</label>
+                        <input id="txtOrgID" class="form-control" aria-label="Organizational ID">
+                    </div>
+                    <button class="col-12 btn btn-success mt-4" id="btnRegister" type="button">Register</button>
+                    <div class="col-12 d-flex justify-content-center">
+                        <a class="col-12 text-center btnToggle" data-card="Register">Return To Login</a>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="card col-12 col-md-10 col-lg-9" id="divDashboard" style="display:none;">
+                <div class="card-header">
+                    <h3>Dashboard</h3>
+                </div>
+                <div class="card-body">
+                    This is a dashboard
+                    <button class="btn btn-danger col-12" type="button" id="btnLogout">Logout</button>
+                </div>
+            </div>
     </div>
 
     
@@ -40,34 +87,101 @@
     
 </body>
 
+<!--- Other functionality --->
+<script>
+    function updateSession(strSessionID){
+        $.ajax({
+            url: 'insert URL',
+            type: 'PUT',
+            data: {SessionID:strSessionID},
+            success: function(result) {
+                console.log(result);
+            }
+        });
+    }
+</script>
+
+
+<!--Toggle for reg and login-->
+<script>
+$('.btnToggle').on('click',function(){
+    let strCard = $(this).attr('data-card');
+    if(strCard == 'Login'){
+        $('#divLogin').slideToggle(function(){
+            $('#divRegister').slideToggle();
+        })
+    } else {
+        $('#divRegister').slideToggle(function(){
+            $('#divLogin').slideToggle();
+        })
+    }
+});
+</script>
+
 
 <!-- 
     Display Dashboard Script
 -->
 <script>
-
+    $('#btnLogin').on('click', function(){
+        $.getJSON('insert URL',
+        {SessionID:sessionStorage.getItem('SimpleSession')},
+        function(sessionDetails){
+            console.log(sessionDetails);
+            if(sessionDetails != null){
+                $('#divLogin').slideUp(function(){
+                    $('#divDashboard').slideDown();
+                })
+            } else if(sessionDetails.Email){
+                $('#divLogin').slideUp(function(){
+                    $('#divDashboard').slideDown();
+                })
+            }
+        })
+    })
 </script>
 
-<!-- 
-    View Registration Script
--->
-<script>
 
-</script>
 
 <!-- 
     Login Script
 -->
 <script>
+    $('#btnLogin').on('click',function()
+    {
+        let blnError = false;
+        let strError = '';
+        
+        let strEmail = $('#txtLoginEmail').val();
+        let strPassword = $('#txtLoginPassword').val();
+        let strEmailRegEx=('/^[^\s@]+@[^\s@]+\.[^\s@]+$/')
+        if(!strEmailRegEx.test(strEmail)){
+            blnError = true;
+            strError += '<p>Email must be valid.</p>';
+        }
+        if(strPassword.length <6){
+            blnError = true;
+            strError += '<p>Password must be at least 6 characters long.</p>';
+        }
 
+        if(blnError == true){
+            Swal.fire({
+                title: "Oops!",
+                html: strError,
+                icon: "error"
+            });
+        } else {
+            $.post('insert URL',{Email:strEmail,Password:strPassword},function(results){
+                results = JSON.parse(results);
+                console.log(results);
+                sessionStorage.setItem('SimpleSession',results.SessionID)
+            })
+        }
+    })
 </script>
 
-<!-- 
-    Cancel registration Script
--->
-<script>
 
-</script>
+
 
 
 <!-- Links for BootStrap, JQuery, and Sweet Alert -->

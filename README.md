@@ -26,7 +26,7 @@ The following are collaborators on this project:
 
 - Ruby Koval
 - Kelsey Duncan
-- Dawson ____
+- Dawson Wright
 - Alex Lujan
 - Haley _____
 - Kevin Irawan
