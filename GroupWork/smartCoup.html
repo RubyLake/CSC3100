@@ -94,7 +94,7 @@ $(document).ready(function() {
         let targetCard = $(this).data('card');
         if (targetCard === 'Login') {
             $('#divLogin').slideToggle(function() {
-                $('#divRegister').slideToggle(); //THIS IS NOT WORKING
+                $('#divRegister').slideToggle(); //THIS IS WORKING
             });
         } else {
             $('#divRegister').slideToggle(function() { 
@@ -115,7 +115,7 @@ $(document).ready(function() {
             });
         } else {
             $('#divLogin').hide();
-            $('#divDashboard').show(); // THIS IS NOT WORKING
+            $('#divDashboard').show(); // THIS IS WORKING
         }
     });
 });
