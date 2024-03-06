@@ -92,6 +92,7 @@
 
 <script>
 $(document).ready(function() {
+<<<<<<< HEAD:GroupWork/smartCoop.html
         $('.btnToggle').on('click', function(){
             let targetCard = $(this).attr('data-card');
             if(targetCard == 'Login'){
@@ -104,6 +105,20 @@ $(document).ready(function() {
                 });
             }
         });
+=======
+    $('.btnToggle').on('click', function() {
+        let targetCard = $(this).data('card');
+        if (targetCard === 'Login') {
+            $('#divLogin').slideToggle(function() {
+                $('#divRegister').slideToggle(); //THIS IS WORKING
+            });
+        } else {
+            $('#divRegister').slideToggle(function() { 
+                $('#divLogin').slideToggle();
+            });
+        }
+    });
+>>>>>>> b3995570cba31b45c13d7622bcbe6cdc4613b289:GroupWork/smartCoup.html
 
     $('#btnLogin').on('click', function() {
         let email = $('#txtLoginEmail').val();
@@ -116,9 +131,14 @@ $(document).ready(function() {
                 icon: "error"
             });
         } else {
+<<<<<<< HEAD:GroupWork/smartCoop.html
             $('#divLogin').slideToggle(function() { 
                     $('#divDashboard').slideToggle();
             }); // THIS IS NOW WORKING
+=======
+            $('#divLogin').hide();
+            $('#divDashboard').show(); // THIS IS WORKING
+>>>>>>> b3995570cba31b45c13d7622bcbe6cdc4613b289:GroupWork/smartCoup.html
         }
     });
 
