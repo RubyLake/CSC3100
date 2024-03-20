@@ -91,26 +91,13 @@
 
 
 <script>
+
 $(document).ready(function() {
-<<<<<<< HEAD:GroupWork/smartCoop.html
-        $('.btnToggle').on('click', function(){
-            let targetCard = $(this).attr('data-card');
-            if(targetCard == 'Login'){
-                $('#divLogin').slideToggle(function(){
-                    $('#divRegister').slideToggle() //THIS IS NOW WORKING
-                });
-            } else {
-                $('#divRegister').slideToggle(function() { 
-                    $('#divLogin').slideToggle();
-                });
-            }
-        });
-=======
-    $('.btnToggle').on('click', function() {
-        let targetCard = $(this).data('card');
-        if (targetCard === 'Login') {
-            $('#divLogin').slideToggle(function() {
-                $('#divRegister').slideToggle(); //THIS IS WORKING
+    $('.btnToggle').on('click', function(){
+        let targetCard = $(this).attr('data-card');
+        if(targetCard == 'Login'){
+            $('#divLogin').slideToggle(function(){
+                $('#divRegister').slideToggle() //THIS IS NOW WORKING
             });
         } else {
             $('#divRegister').slideToggle(function() { 
@@ -118,12 +105,12 @@ $(document).ready(function() {
             });
         }
     });
->>>>>>> b3995570cba31b45c13d7622bcbe6cdc4613b289:GroupWork/smartCoup.html
 
     $('#btnLogin').on('click', function() {
         let email = $('#txtLoginEmail').val();
         let password = $('#txtLoginPassword').val();
         let emailRegEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
         if (!emailRegEx.test(email) || password.length < 6) {
             Swal.fire({
                 title: "Oops!",
@@ -131,16 +118,38 @@ $(document).ready(function() {
                 icon: "error"
             });
         } else {
-<<<<<<< HEAD:GroupWork/smartCoop.html
-            $('#divLogin').slideToggle(function() { 
-                    $('#divDashboard').slideToggle();
-            }); // THIS IS NOW WORKING
-=======
-            $('#divLogin').hide();
-            $('#divDashboard').show(); // THIS IS WORKING
->>>>>>> b3995570cba31b45c13d7622bcbe6cdc4613b289:GroupWork/smartCoup.html
+            
+            $.ajax({
+                url: 'https://simplecoop.swollenhippo.com/users.php',
+                type: 'GET', 
+                data: {Email: email},
+                success: function(result) 
+                {
+                    console.log(result);
+                    results=JSON.parse(result)
+                    if(result.Email != email){
+                        Swal.fire({
+                            title: "Uh-Oh!",
+                            html:'<p> Invalid Email, Please try again! <p>',
+                            icon:"error"
+                        })
+                    }else if(result.Password == password){
+                        $('#divLogin').slideToggle(function() {     
+                            $('#divDashboard').slideToggle();
+                        })
+                    }else{
+                        Swal.fire({
+                            title: "Uh-Oh!",
+                            html:'<p>Invalid Password, Please try again! <p>',
+                            icon:"error"
+                        })
+                    }
+                },
+
+            });
         }
-    });
+    }); 
+
 
     $('#btnLogout').on('click', function(){
         let targetCard = $(this).attr('data-card');
