@@ -204,9 +204,36 @@ $(document).ready(function() {
                 icon: "error"
             });
         } else {
-            $('#divRegister').slideToggle(function() { 
-                    $('#divDashboard').slideToggle();
-            });    
+            // Creates a new user through users.php
+            $.post('https://simplecoop.swollenhippo.com/users.php',{Email:strEmail, Password:strPassword, FirstName:strFirstName, LastName:strLastName, CoopID:strOrgID},function(result){
+                result = JSON.parse(result);
+                console.log(result);
+                if(result.Error){
+                    Swal.fire({
+                        title: "Oops!",
+                        html: '<p>' + result.Error + '</p>',
+                        icon: "error"
+                    });
+                } else {
+                    $('#divRegister').slideToggle(function(){
+                        $('#divDashboard').slideToggle();
+                    })
+                }
+            });
+            
+            // Saves the new user to the session through sessions.php
+            $.post('https://simplecoop.swollenhippo.com/sessions.php',{Email:strEmail, Password:strPassword},function(result){
+                result = JSON.parse(result);
+                console.log(result);
+                if(result.Error){
+                    Swal.fire({
+                        title: "Oops!",
+                        html: '<p>' + result.Error + '</p>',
+                        icon: "error"
+                    });
+                }
+            })    
+
         }
     })    
 });
