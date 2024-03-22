@@ -119,7 +119,7 @@ $(document).ready(function() {
             });
         } else {
             
-            $.ajax({
+           /* $.ajax({
                 url: 'https://simplecoop.swollenhippo.com/users.php',
                 type: 'GET', 
                 data: {Email: email},
@@ -127,13 +127,14 @@ $(document).ready(function() {
                 {
                     console.log(result);
                     results=JSON.parse(result)
-                    if(result.Email != email){
+                    console.log(results.Email)
+                    if(results.Email != email){
                         Swal.fire({
                             title: "Uh-Oh!",
                             html:'<p> Invalid Email, Please try again! <p>',
                             icon:"error"
                         })
-                    }else if(result.Password == password){
+                    }else if(results.Password == password){
                         $('#divLogin').slideToggle(function() {     
                             $('#divDashboard').slideToggle();
                         })
@@ -146,7 +147,31 @@ $(document).ready(function() {
                     }
                 },
 
-            });
+            });*/
+            $.ajax({
+                url: 'https://simplecoop.swollenhippo.com/sessions.php',
+                type: 'POST', 
+                data: {Email: email, Password: password},
+                success: function(result) 
+                {
+                    console.log(result);
+                    parsedResults=JSON.parse(result)
+                    console.log(parsedResults.Outcome)
+                    if(parsedResults.Outcome == 'false'){
+                        Swal.fire({
+                            title: "Uh-Oh!",
+                            html:'<p> Invalid Email or password, Please try again! <p>',
+                            icon:"error"
+                        })
+                    }else{
+                        sessionStorage.setItem,('SessionID',parsedResults.SessionID)
+                        $('#divLogin').slideToggle(function() {     
+                            $('#divDashboard').slideToggle();
+                        })
+                    }
+                },
+
+            })
         }
     }); 
 
