@@ -165,6 +165,7 @@ $(document).ready(function() {
                         })
                     }else{
                         sessionStorage.setItem,('SessionID',parsedResults.SessionID)
+                        console.log(parsedResults)
                         $('#divLogin').slideToggle(function() {     
                             $('#divDashboard').slideToggle();
                         })
@@ -250,6 +251,9 @@ $(document).ready(function() {
             $.post('https://simplecoop.swollenhippo.com/sessions.php',{Email:strEmail, Password:strPassword},function(result){
                 result = JSON.parse(result);
                 console.log(result);
+                sessionStorage.setItem,('SessionID',result.SessionID)
+                console.log(result.SessionID)
+                console.log(result.SessionID)
                 if(result.Error){
                     Swal.fire({
                         title: "Oops!",
