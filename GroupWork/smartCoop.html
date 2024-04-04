@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Coup</title>
+    <title>Smart Coop</title>
     <!-- Link to utilize BootStrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <!-- jQuery -->
@@ -79,7 +79,16 @@
                     <h3>Dashboard</h3>
                 </div>
                 <div class="card-body">
-                    This is a dashboard
+                    <div>
+                        <label for="txtEggInput" class="form-label">Input Eggs Harvested For The Day:</label>
+                        <input id="txtEggInput" class="form-control" aria-label="Eggs Harvested">
+                    </div>
+                    <button class="btn col-12 btn-primary " type="button" id="btnInputEggs">Submit Eggs</button><!--button to input eggs--> 
+                    <div id="divTotalEggs">
+                        <label for="txtTotalEggs" class="form-label">Total Eggs Harvested: </label>
+                        <div id="divTotalEggCount"></div>
+
+                    </div>
                     <button class="btn btn-danger col-12" type="button" id="btnLogout" data-card="Dashboard">Logout</button>
                 </div>
         </div>
@@ -93,6 +102,8 @@
 <script>
 
 $(document).ready(function() {
+
+
     $('.btnToggle').on('click', function(){
         let targetCard = $(this).attr('data-card');
         if(targetCard == 'Login'){
@@ -155,7 +166,7 @@ $(document).ready(function() {
                 success: function(result) 
                 {
                     console.log(result);
-                    parsedResults=JSON.parse(result)
+                    var parsedResults = JSON.parse(result)
                     console.log(parsedResults.Outcome)
                     if(parsedResults.Outcome == 'false'){
                         Swal.fire({
@@ -170,12 +181,38 @@ $(document).ready(function() {
                             $('#divDashboard').slideToggle();
                         })
                     }
-                },
+                }
 
             })
         }
     }); 
+    
+    var intTotalEggs = parseInt("0",10);    //total egg count
+    $('#btnInputEggs').on('click',function(){
+        var intEggs = $('#txtEggInput').val();
+        intTotalEggs += parseInt(intEggs,10)
+        var currentDate = new Date();
+        var strDateTime = currentDate.toISOString();//get date
 
+        $.post('https://simplecoop.swollenhippo.com/eggs.php',{SessionID:parsedResults.sessionID, observationDateTime:strDateTime, eggs:intEggs},function(result){
+            result = JSON.parse(result);
+            console.log(result);
+            if(result.Error){
+                Swal.fire({
+                    title: "Oops!",
+                    html: '<p>' + result.Error + '</p>',
+                    icon: "error"
+                });
+            } else {
+                // Replaces #divTotalEggCount to update the total eggs harvested
+                // This counter works but there are problems with the post
+                let strHTML = '<div id="divTotalEggCount">' + intTotalEggs + '</div>'
+                $('#divTotalEggCount').remove();
+                $('#divTotalEggs').append(strHTML)
+            }
+        });
+        
+    })
 
     $('#btnLogout').on('click', function(){
         let targetCard = $(this).attr('data-card');
