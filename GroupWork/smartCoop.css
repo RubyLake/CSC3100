@@ -1,0 +1,9 @@
+html body {
+    background-image: url('images/bgroundFarm.png')!important;
+    background-size: cover;  /* Cover the entire body */
+    background-position: center; /* Center the background image */
+}
+
+.card{
+    background-color: #4CAF50; /* A shade of green */
+}

@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="smartCoop.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Coop</title>
     <!-- Link to utilize BootStrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <!-- jQuery -->
-
+    <!-- chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class = "bg-dark">
+
+<body id = "Background">
     <!--Create a centered container for cards // maybe change?-->
     <div class="d-flex col-12 justify-content-center align-items-center vh-100">
         <!--Login Page // Default-->
-        <div class="card col-12 col-md-5 mt-5" id = "divLogin">   
+        
+        <div class ="card" class="card col-12 col-md-5 mt-5" id = "divLogin">   
             <div class ="card-header">
                 <h3>User Login</h3>
             </div>
@@ -30,7 +33,7 @@
                     </div>
                     <!-- Div used for positioning of button element-->
                     <div class="col-12 d-flex justify-content-center">
-                        <button type = "button" id="btnLogin" class="btn btn-primary">Login</button>
+                        <button type="button" id="btnLogin" class="btn btn-primary">Login</button>
                     </div>
                     <div class="col-12 d-flex justify-content-center">
                         <a class="col-12 text-center btnToggle" data-card="Login">Need an Account?  Click Here</a>
@@ -38,6 +41,7 @@
                 </form>
             </div>           
         </div>
+ 
         <!--Registration Card-->
         <div class="card col-12 col-md-5 col-lg-4" id="divRegister" style="display:none;">
             <div class="card-header">
@@ -85,9 +89,7 @@
                     </div>
                     <button class="btn col-12 btn-primary " type="button" id="btnInputEggs">Submit Eggs</button><!--button to input eggs--> 
                     <div id="divTotalEggs">
-                        <label for="txtTotalEggs" class="form-label">Total Eggs Harvested: </label>
-                        <div id="divTotalEggCount"></div>
-
+                        <canvas id="eggCountChart"></canvas>
                     </div>
                     <button class="btn btn-danger col-12" type="button" id="btnLogout" data-card="Dashboard">Logout</button>
                 </div>
@@ -96,9 +98,43 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>  
-
-
-
+</body>
+<!--SCRIPT FOR CHATJS-->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx = document.getElementById('eggCountChart').getContext('2d');
+        const eggCountChart = new Chart(ctx, {
+            type: 'line', // Change to 'bar' if you prefer a bar chart
+            data: {
+                labels: ['2023-01-01', '2023-01-02', '2023-01-03'], // Example dates
+                datasets: [{
+                    label: 'Total Eggs',
+                    data: [12, 19, 3], // Example egg counts
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Total of Eggs Added'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date'
+                        }
+                    }
+                }
+            }
+        });
+    });
+    </script>
 <script>
 
 $(document).ready(function() {
@@ -129,36 +165,7 @@ $(document).ready(function() {
                 icon: "error"
             });
         } else {
-            
-           /* $.ajax({
-                url: 'https://simplecoop.swollenhippo.com/users.php',
-                type: 'GET', 
-                data: {Email: email},
-                success: function(result) 
-                {
-                    console.log(result);
-                    results=JSON.parse(result)
-                    console.log(results.Email)
-                    if(results.Email != email){
-                        Swal.fire({
-                            title: "Uh-Oh!",
-                            html:'<p> Invalid Email, Please try again! <p>',
-                            icon:"error"
-                        })
-                    }else if(results.Password == password){
-                        $('#divLogin').slideToggle(function() {     
-                            $('#divDashboard').slideToggle();
-                        })
-                    }else{
-                        Swal.fire({
-                            title: "Uh-Oh!",
-                            html:'<p>Invalid Password, Please try again! <p>',
-                            icon:"error"
-                        })
-                    }
-                },
 
-            });*/
             $.ajax({
                 url: 'https://simplecoop.swollenhippo.com/sessions.php',
                 type: 'POST', 
@@ -168,7 +175,7 @@ $(document).ready(function() {
                     console.log(result);
                     var parsedResults = JSON.parse(result)
                     console.log(parsedResults.Outcome)
-                    if(parsedResults.Outcome == 'false'){
+                    if(!parsedResults.SessionID){
                         Swal.fire({
                             title: "Uh-Oh!",
                             html:'<p> Invalid Email or password, Please try again! <p>',
@@ -186,13 +193,53 @@ $(document).ready(function() {
             })
         }
     }); 
-    
-    var intTotalEggs = parseInt("0",10);    //total egg count
+    //FUNCTION TO ADD EGGS ON CLICK 
     $('#btnInputEggs').on('click',function(){
+        
         var intEggs = $('#txtEggInput').val();
         intTotalEggs += parseInt(intEggs,10)
         var currentDate = new Date();
         var strDateTime = currentDate.toISOString();//get date
+
+        $.get('https://simplecoop.swollenhippo.com/eggs.php',{SessionID:parsedResults.sessionID, observationDateTime:strDateTime, eggs:intEggs},function(result){
+            result = JSON.parse(result);
+            
+        })
+            /*
+            // Replaces #divTotalEggCount to update the total eggs harvested
+            // This counter works but there are problems with the post
+            let strHTML = '<div id="divTotalEggCount">' + intTotalEggs + '</div>'
+            $('#divTotalEggCount').remove();
+            $('#divTotalEggs').append(strHTML)
+            */
+        $.ajax({
+            url:'https://simplecoop.swollenhippo.com/eggs.php',
+            type: 'POST',
+            data: 
+            {
+                SessionID: sessionID,
+                observationDateTime: observationDateTime,
+                eggs: intTotalEggs
+            },
+            success: function(result)
+            {
+                console.log(result);
+                var parsedResults = JSON.parse(result);
+                console.log()
+                if(!parsedResults.SessionID)
+                {
+                    Swal.fire({
+                        title: "Uh-Oh!",
+                        html:'<p> Invalid Email or password, Please try again! <p>',
+                        icon:"error"
+                    })
+                }
+                else
+                {
+                    
+                }
+            }
+        })
 
         $.post('https://simplecoop.swollenhippo.com/eggs.php',{SessionID:parsedResults.sessionID, observationDateTime:strDateTime, eggs:intEggs},function(result){
             result = JSON.parse(result);
@@ -204,11 +251,7 @@ $(document).ready(function() {
                     icon: "error"
                 });
             } else {
-                // Replaces #divTotalEggCount to update the total eggs harvested
-                // This counter works but there are problems with the post
-                let strHTML = '<div id="divTotalEggCount">' + intTotalEggs + '</div>'
-                $('#divTotalEggCount').remove();
-                $('#divTotalEggs').append(strHTML)
+
             }
         });
         
@@ -304,6 +347,5 @@ $(document).ready(function() {
     })    
 });
 </script>
-</body>
-</html>
 
+</html>
