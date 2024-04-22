@@ -81,12 +81,13 @@
                 <div class="card-body">
                     <div>
                         <label for="txtEggInput" class="form-label">Input Eggs Harvested For The Day:</label>
-                        <input id="txtEggInput" class="form-control" aria-label="Eggs Harvested">
+                        <input id="txtEggInput" class="form-control form-control-sm aria-label="Eggs Harvested">
                     </div>
-                    <button class="btn col-12 btn-primary " type="button" id="btnInputEggs">Submit Eggs</button><!--button to input eggs--> 
+                    <button class="btn col-12 btn-primary btn-sm" type="button" id="btnInputEggs">Submit Eggs</button><!--button to input eggs--> 
                     <div id="divTotalEggs">
                         <canvas id="eggCountChart"></canvas>
                     </div>
+                    
                     <button class="btn btn-danger col-12" type="button" id="btnLogout" data-card="Dashboard">Logout</button>
                 </div>
         </div>
@@ -128,43 +129,97 @@
     }
 });
 */
-    //CHARTJS SCRIPT
-    document.addEventListener('DOMContentLoaded', function () {
-        const ctx = document.getElementById('eggCountChart').getContext('2d');
-        const eggCountChart = new Chart(ctx, {
-            type: 'line', // Change to 'bar' if you prefer a bar chart
-            data: {
-                labels: ['2023-01-01', '2023-01-02', '2023-01-03'], // Example dates
-                datasets: [{
-                    label: 'Total Eggs',
-                    data: [12, 19, 3], // Example egg counts
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Total of Eggs Added'
-                        }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Date'
-                        }
-                    }
-                }
-            }
-        });
+//GLOBAL EGG COUNT FOR CHART
+var eggCountChart; 
+
+//Initialize a blank chart to be filled in later
+document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('eggCountChart').getContext('2d');
+    eggCountChart = new Chart(ctx, {
+        type: 'bar', // Or 'bar', depending on your needs
+        data: {
+            labels: [], // Initial empty labels
+            datasets: [{
+                label: 'Egg Count',
+                data: [], // Initial empty data
+            }]
+        },
+        options: {
+            // Your chart options
+        }
+    });
+});
+
+//FUNCTION TO CORRELATE EGGS TO DATE WITHOUT TIMESTAMPS
+function aggregateEggDataByDate(eggDetails) {
+    const eggCountsByDate = {};
+
+    eggDetails.forEach(detail => {
+        const date = detail.LogDateTime.split(' ')[0]; // Get date part only
+        if (!eggCountsByDate[date]) {
+            eggCountsByDate[date] = 0;
+        }
+        eggCountsByDate[date] += detail.Harvested;
     });
 
+    return eggCountsByDate;
+}
+//FUNCTION TO MAP DATA FOR CHART
+function prepareChartData(eggCountsByDate) {
+    const labels = Object.keys(eggCountsByDate).sort();
+    const dataPoints = labels.map(date => eggCountsByDate[date]);
 
+    return { labels, dataPoints };
+}
+//FUNCTION TO UPDATE THE DATA DISPLAYED IN THE CHART 
+function updateChart(labels, dataPoints) {
+    if (eggCountChart && eggCountChart.data && eggCountChart.data.datasets.length > 0) {
+        eggCountChart.data.labels = labels;
+        eggCountChart.data.datasets[0].data = dataPoints; // Assuming you have at least one dataset
+        eggCountChart.update();
+    } else {
+        console.error('Chart is not initialized or datasets are not defined.');
+    }
+}
+//fetches ALL egg data for the last WEEK, then updates it. 
+function fetchEggDetailsForTheWeek() {
+    let sessionID = sessionStorage.getItem('SessionID');
+    let days = 7; // Fetch records from the last 7 days
 
+    if (!sessionID) {
+        console.error("Session ID not found. Unable to fetch egg details.");
+        return;
+    }
+
+    $.ajax({
+        url: 'https://simplecoop.swollenhippo.com/eggs.php', // Adjust URL to your endpoint
+        type: 'GET',
+        data: {
+            SessionID: sessionID,
+            days: days // Send the number of days as specified
+        },
+        success: function(response) {
+            var eggDets = JSON.parse(response);
+            if (eggDets.length === 0) {
+                console.log("No egg details found for the specified period.");
+            } else {
+                console.log("Egg details fetched successfully:", eggDets);
+                // Process and display your egg details here
+                const eggDetails = JSON.parse(response)
+                const eggCountsByDate = aggregateEggDataByDate(eggDetails);
+                const {labels, dataPoints} = prepareChartData(eggCountsByDate);
+                updateChart(labels,dataPoints);
+            }//END OF ELSE
+
+            
+        },//    END OF SUCCESS
+        error: function(xhr, status, error) {
+            console.error("Error fetching egg details: " + status + ", " + error);
+        }//END OF ERROR
+    });//END OF AJAX
+}//END OF FUNCTION
+
+//toggle for cards
 $(document).ready(function() {
 
 
@@ -183,6 +238,7 @@ $(document).ready(function() {
 });
 
 
+//LOGIN LISTENER
 $('#btnLogin').on('click', function() {
     let email = $('#txtLoginEmail').val();
     let password = $('#txtLoginPassword').val();
@@ -216,6 +272,8 @@ $('#btnLogin').on('click', function() {
                     $('#divLogin').slideToggle(function() {     
                         $('#divDashboard').slideToggle();
                     })
+                    //GET EGGS FOR USER AND LOG THEIR EGG COUNTS
+                    fetchEggDetailsForTheWeek();
                 }
             }
 
@@ -236,20 +294,19 @@ $('#btnInputEggs').on('click',function(){
         url: 'https://simplecoop.swollenhippo.com/eggs.php',
         type: 'POST',
         data: {
-            SessionID: SessionID, // Ensure this variable is correctly defined and holds the session ID
-            observationDateTime: strDateTime, // Ensure this variable is correctly defined and holds the date/time
-            eggs: intTotalEggs // Ensure this variable is correctly defined and holds the number of eggs
+            SessionID: SessionID, 
+            observationDateTime: strDateTime, 
+            eggs: intTotalEggs 
         },
         success: function(result) {
             // Handle success
             var parsedResults = JSON.parse(result)
             console.log(parsedResults);
-            // Additional logic for success (update chart and data)
+            eggs = fetchEggDetailsForTheWeek();
         },
         error: function(jqXHR, textStatus, errorThrown) {
             // Handle failure
             console.error("Request failed: " + textStatus + ", " + errorThrown);
-            // Here you can use Swal.fire(...) or another method to show an error message
             Swal.fire({
                 title: "Error!",
                 text: "Failed to post eggs. Please try again.",
@@ -324,7 +381,6 @@ $('#btnRegister').on('click',function(){
                 CoopID:strOrgID
             },
             success: function(response) {
-                // Code to execute upon success
                 console.log(response);
                 result = JSON.parse(response);
                 if(result.Outcome!="False")
