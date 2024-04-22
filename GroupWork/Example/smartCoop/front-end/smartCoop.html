@@ -386,7 +386,7 @@ $('#btnLogin').on('click', function() {
                     //GET EGGS FOR USER AND LOG THEIR EGG COUNTS
                     fetchEggDetailsForTheWeek();
                     fetchUserAddress(sessionStorage.getItem('Email'))
-                    const apiKey = 'c7cfc0f2c1ae4d14fbfb9e49167af296';
+                    const apiKey = '************'; // starred out
                     const email = 'GLambert@gmail.com';
 
                     fetchWeatherForCity(email, apiKey).then(weatherData => {
