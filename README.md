@@ -69,7 +69,21 @@ We are creating three experiences that the user will encounter.
 
 - Appropriate Branding 
 - Use of regex or pattern matching 
-- Anything above and beyond scope of the assignment 
+- Anything above and beyond scope of the assignment
+
+"Part 2"
+
+Login and functional Registration
+
+
+- Use ajax, and other methods to complete a login, using the php backend established
+
+
+"Part 3"
+
+Egg Counter for week
+- Utilizes Chartsjs
+- Make a running total for eggs, that also splits up the eggs by day, and graphs them accordingly for the week.
 
 
 
