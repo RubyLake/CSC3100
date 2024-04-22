@@ -66,10 +66,6 @@
                         <label for="txtPassword" class="form-label">Password</label>
                         <input id="txtPassword" class="form-control" type="password" aria-label="Password">
                     </div>
-                    <div class="form-group mt-4">
-                        <label for="txtOrgID" class="form-label">Organizational ID</label>
-                        <input id="txtOrgID" class="form-control" aria-label="Organizational ID">
-                    </div>
                     <button class="col-12 btn btn-success mt-4" id="btnRegister" type="button">Register</button>
                     <div class="col-12 d-flex justify-content-center">
                         <a class="col-12 text-center btnToggle" data-card="Register">Return To Login</a>
@@ -99,8 +95,40 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>  
 </body>
-<!--SCRIPT FOR CHARTJS-->
 <script>
+    /*$(document).ready(function() {
+    // Check if CoopID already exists in sessionStorage to prevent multiple calls
+    if (!sessionStorage.getItem('CoopID')) {
+        $.ajax({
+            url: 'https://simplecoop.swollenhippo.com/coop.php', // Replace with your actual endpoint URL
+            type: 'POST', // Method type
+            data: {
+                // Your required parameters here, if any
+            },
+            success: function(response) {
+                // Assuming the response contains { "CoopID": "some_value" }
+                var result = JSON.parse(response);
+                if(result.CoopID) {
+                    console.log("CoopID:", result.CoopID);
+                    // Store CoopID in sessionStorage to use it later and to avoid re-fetching
+                    sessionStorage.setItem('CoopID', result.CoopID);
+                    console.log(sessionStorage.getItem('CoopID'))
+                } else {
+                    // Handle the case where CoopID is not returned
+                    console.error("CoopID was not returned by the server.");
+                }
+            },
+            error: function(xhr, status, error) {
+                // Handle error
+                console.error("Error fetching CoopID:", status, error);
+            }
+        });
+    } else {
+        console.log("CoopID already exists:", sessionStorage.getItem('CoopID'));
+    }
+});
+*/
+    //CHARTJS SCRIPT
     document.addEventListener('DOMContentLoaded', function () {
         const ctx = document.getElementById('eggCountChart').getContext('2d');
         const eggCountChart = new Chart(ctx, {
@@ -134,8 +162,8 @@
             }
         });
     });
-    </script>
-<script>
+
+
 
 $(document).ready(function() {
 
@@ -152,173 +180,182 @@ $(document).ready(function() {
             });
         }
     });
+});
 
-    $('#btnLogin').on('click', function() {
-        let email = $('#txtLoginEmail').val();
-        let password = $('#txtLoginPassword').val();
-        let emailRegEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        if (!emailRegEx.test(email) || password.length < 6) {
-            Swal.fire({
-                title: "Oops!",
-                html: '<p>Email must be valid and password must be at least 6 characters long.</p>',
-                icon: "error"
-            });
-        } else {
-            $.ajax({
-                url: 'https://simplecoop.swollenhippo.com/sessions.php',
-                type: 'POST', 
-                data: {Email: email, Password: password},
-                success: function(result) 
-                {
-                    console.log(result);
-                    var parsedResults = JSON.parse(result)
-                    console.log(parsedResults.Outcome)
-                    if(!parsedResults.SessionID){
-                        Swal.fire({
-                            title: "Uh-Oh!",
-                            html:'<p> Invalid Email or password, Please try again! <p>',
-                            icon:"error"
-                        })
-                    }else{
-                        sessionStorage.setItem('SessionID',parsedResults.SessionID)
-                        console.log(parsedResults)
-                        $('#divLogin').slideToggle(function() {     
-                            $('#divDashboard').slideToggle();
-                        })
-                    }
-                }
+$('#btnLogin').on('click', function() {
+    let email = $('#txtLoginEmail').val();
+    let password = $('#txtLoginPassword').val();
+    let emailRegEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            })
-        }
-    }); 
-    //FUNCTION TO ADD EGGS ON CLICK 
-    $('#btnInputEggs').on('click',function(){
-        let intTotalEggs = $('#txtEggInput').val()
-        let SessionID = sessionStorage.getItem('SessionID')
-        let inputDate = new Date();
-        let strDateTime = inputDate.toISOString();
-        console.log(SessionID)
-        console.log(inputDate)
-        console.log(intTotalEggs)
-        console.log(strDateTime)
-        $.ajax({
-            url: 'https://simplecoop.swollenhippo.com/eggs.php',
-            type: 'POST',
-            data: {
-                SessionID: SessionID, // Ensure this variable is correctly defined and holds the session ID
-                observationDateTime: strDateTime, // Ensure this variable is correctly defined and holds the date/time
-                eggs: intTotalEggs // Ensure this variable is correctly defined and holds the number of eggs
-            },
-            success: function(result) {
-                // Handle success
-                var parsedResults = JSON.parse(result)
-                console.log(parsedResults);
-                // Additional logic for success (update chart and data)
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                // Handle failure
-                console.error("Request failed: " + textStatus + ", " + errorThrown);
-                // Here you can use Swal.fire(...) or another method to show an error message
-                Swal.fire({
-                    title: "Error!",
-                    text: "Failed to post eggs. Please try again.",
-                    icon: "error"
-                });
-            }
+    if (!emailRegEx.test(email) || password.length < 6) {
+        Swal.fire({
+            title: "Oops!",
+            html: '<p>Email must be valid and password must be at least 6 characters long.</p>',
+            icon: "error"
         });
-        //END OF BTNINPUTS
-    })
-
-    $('#btnLogout').on('click', function(){
-        let targetCard = $(this).attr('data-card');
-        if(targetCard == 'Dashboard'){
-            $('#divDashboard').slideToggle(function(){
-                $('#divLogin').slideToggle() //THIS IS NOW WORKING
-            });
-        }
-    });
-    
-    $('#btnRegister').on('click',function(){
-        let blnError = false;
-        let strError = '';
-
-        let strFirstName = $('#txtFirstName').val();
-        let strLastName = $('#txtLastName').val();
-        let strEmail = $('#txtEmail').val();
-        let strPassword = $('#txtPassword').val();
-        let strOrgID = $('#txtOrgID').val();
-
-        if(strFirstName.length <1){
-            blnError = true;
-            strError += '<p>First name cannot be blank.</p>'
-        }
-        if(strLastName.length <1){
-            blnError = true;
-            strError += '<p>Last name cannot be blank.</p>'
-        }
-        if(strEmail.length <7){
-            blnError = true;
-            strError += '<p>Email must be valid.</p>'
-        } else if (!strEmail.includes('@')){
-            blnError = true;
-            strError += '<p>Email must be valid.</p>'
-        } else if(!strEmail.includes('.')){
-            blnError = true;
-            strError += '<p>Email must be valid.</p>'
-        }
-        if(strPassword.length <6){
-            blnError = true;
-            strError += '<p>Password must be at least 6 characters long.</p>'
-        }
-        if(strOrgID.length != 4){
-            blnError = true;
-            strError += '<p>Invalid OrgID.</p>'
-        }
-
-        if(blnError == true){
-            Swal.fire({
-                title: "Oops!",
-                html: strError,
-                icon: "error"
-            });
-        } else {
-            // Creates a new user through users.php
-            $.post('https://simplecoop.swollenhippo.com/users.php',{Email:strEmail, Password:strPassword, FirstName:strFirstName, LastName:strLastName, CoopID:strOrgID},function(result){
-                result = JSON.parse(result);
+    } else {
+        $.ajax({
+            url: 'https://simplecoop.swollenhippo.com/sessions.php',
+            type: 'POST', 
+            data: {Email: email, Password: password},
+            success: function(result) 
+            {
                 console.log(result);
-                if(result.Error){
+                var parsedResults = JSON.parse(result)
+                console.log(parsedResults.Outcome)
+                if(!parsedResults.SessionID){
                     Swal.fire({
-                        title: "Oops!",
-                        html: '<p>' + result.Error + '</p>',
-                        icon: "error"
-                    });
-                } else {
-                    $('#divRegister').slideToggle(function(){
+                        title: "Uh-Oh!",
+                        html:'<p> Invalid Email or password, Please try again! <p>',
+                        icon:"error"
+                    })
+                }else{
+                    sessionStorage.setItem('SessionID',parsedResults.SessionID)
+                    console.log(parsedResults)
+                    $('#divLogin').slideToggle(function() {     
                         $('#divDashboard').slideToggle();
                     })
                 }
-            });
-            
-            // Saves the new user to the session through sessions.php
-            $.post('https://simplecoop.swollenhippo.com/sessions.php',{Email:strEmail, Password:strPassword},function(result){
-                result = JSON.parse(result);
-                console.log(result);
-                sessionStorage.setItem,('SessionID',result.SessionID)
-                console.log(result.SessionID)
-                console.log(result.SessionID)
-                if(result.Error){
-                    Swal.fire({
-                        title: "Oops!",
-                        html: '<p>' + result.Error + '</p>',
-                        icon: "error"
-                    });
-                }
-            })    
+            }
 
+        })
+    }
+}); 
+//FUNCTION TO ADD EGGS ON CLICK 
+$('#btnInputEggs').on('click',function(){
+    let intTotalEggs = $('#txtEggInput').val()
+    let SessionID = sessionStorage.getItem('SessionID')
+    let inputDate = new Date();
+    let strDateTime = inputDate.toISOString();
+    console.log(SessionID)
+    console.log(inputDate)
+    console.log(intTotalEggs)
+    console.log(strDateTime)
+    $.ajax({
+        url: 'https://simplecoop.swollenhippo.com/eggs.php',
+        type: 'POST',
+        data: {
+            SessionID: SessionID, // Ensure this variable is correctly defined and holds the session ID
+            observationDateTime: strDateTime, // Ensure this variable is correctly defined and holds the date/time
+            eggs: intTotalEggs // Ensure this variable is correctly defined and holds the number of eggs
+        },
+        success: function(result) {
+            // Handle success
+            var parsedResults = JSON.parse(result)
+            console.log(parsedResults);
+            // Additional logic for success (update chart and data)
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            // Handle failure
+            console.error("Request failed: " + textStatus + ", " + errorThrown);
+            // Here you can use Swal.fire(...) or another method to show an error message
+            Swal.fire({
+                title: "Error!",
+                text: "Failed to post eggs. Please try again.",
+                icon: "error"
+            });
         }
-    })    
+    });
+    //END OF BTNINPUTS
+})
+
+$('#btnLogout').on('click', function(){
+    let targetCard = $(this).attr('data-card');
+    if(targetCard == 'Dashboard'){
+        $('#divDashboard').slideToggle(function(){
+            $('#divLogin').slideToggle() //THIS IS NOW WORKING
+        });
+    }
 });
+
+//registration function
+$('#btnRegister').on('click',function(){
+    let blnError = false;
+    let strError = '';
+
+    let strFirstName = $('#txtFirstName').val();
+    let strLastName = $('#txtLastName').val();
+    let strEmail = $('#txtEmail').val();
+    let strPassword = $('#txtPassword').val();
+    let strOrgID = sessionStorage.getItem('CoopID');
+
+    if(strFirstName.length <1){
+        blnError = true;
+        strError += '<p>First name cannot be blank.</p>'
+    }
+    if(strLastName.length <1){
+        blnError = true;
+        strError += '<p>Last name cannot be blank.</p>'
+    }
+    if(strEmail.length <7){
+        blnError = true;
+        strError += '<p>Email must be valid.</p>'
+    } else if (!strEmail.includes('@')){
+        blnError = true;
+        strError += '<p>Email must be valid.</p>'
+    } else if(!strEmail.includes('.')){
+        blnError = true;
+        strError += '<p>Email must be valid.</p>'
+    }
+    if(strPassword.length <6){
+        blnError = true;
+        strError += '<p>Password must be at least 6 characters long.</p>'
+    }
+
+
+    if(blnError == true){
+        Swal.fire({
+            title: "Oops!",
+            html: strError,
+            icon: "error"
+        });
+    } else {
+        // Creates a new user through users.php
+        $.ajax({
+            url: 'https://simplecoop.swollenhippo.com/users.php',
+            type: 'POST', 
+            data: {
+                // Your data here as key-value pairs
+                Email:strEmail,
+                Password:strPassword,
+                FirstName:strFirstName,
+                LastName:strLastName,
+                CoopID:strOrgID
+            },
+            success: function(response) {
+                // Code to execute upon success
+                console.log(response);
+                result = JSON.parse(response);
+                if(result.Outcome!="False")
+                {
+                    $('#divRegister').hide();
+                    $('#divDashboard').show();
+                    $.post('https://simplecoop.swollenhippo.com/sessions.php',{Email:strEmail, Password:strPassword},function(result){
+                        result = JSON.parse(result);
+                        console.log(result);
+                        sessionStorage.setItem,('SessionID',result.SessionID)
+                        console.log(result.SessionID)
+                        console.log(result.SessionID)
+                        if(result.Error){
+                            Swal.fire({
+                                title: "Oops!",
+                                html: '<p>' + result.Error + '</p>',
+                                icon: "error"
+                            });
+                        }
+                    })
+                }
+                //END OF IF
+            },
+            error: function(xhr, status, error) {
+                // Code to execute on error
+                console.error("Error occurred: " + status + ", " + error);
+            }
+        });
+    }//END OF ELSE
+})  //END OF EVENT HANDLER
+
 </script>
 
 </html>
